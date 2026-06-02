@@ -1,5 +1,6 @@
 package com.eciwise.study.config;
 
+import com.eciwise.study.auth.AuthenticatedUser;
 import com.eciwise.study.auth.JwtService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -54,8 +55,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String rol = claims.get("rol", String.class);
 
         if (userId != null && rol != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            AuthenticatedUser principal = new AuthenticatedUser(
                     userId,
+                    claims.get("email", String.class),
+                    claims.get("nombre", String.class),
+                    claims.get("apellido", String.class),
+                    rol
+            );
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    principal,
                     null,
                     List.of(new SimpleGrantedAuthority(rol))
             );

@@ -19,6 +19,9 @@
 
     <properties>
         <java.version>21</java.version>
+        <!-- La version gestionada por Spring Boot (1.18.34) no soporta JDKs muy recientes.
+             Se fija una version mas nueva para compatibilidad del entorno de build. -->
+        <lombok.version>1.18.42</lombok.version>
     </properties>
 
     <dependencies>
@@ -83,6 +86,21 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!-- Desde JDK 23 el procesamiento implicito de anotaciones esta desactivado;
+                         se declara Lombok explicitamente para que genere getters/setters/builders. -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
