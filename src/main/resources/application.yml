@@ -27,6 +27,11 @@ spring:
 jwt:
   secret: ${JWT_SECRET:change-this-secret-to-a-very-long-random-value-eciwise-study-2026}
 
+app:
+  cors:
+    # Orígenes permitidos para el frontend (lista separada por comas).
+    allowed-origins: ${FRONTEND_URL:http://localhost:4200}
+
 server:
   port: ${SERVER_PORT:8080}
 
