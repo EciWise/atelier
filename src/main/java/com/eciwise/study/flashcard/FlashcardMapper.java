@@ -3,6 +3,8 @@ package com.eciwise.study.flashcard;
 import com.eciwise.study.flashcard.dto.AuthorResponse;
 import com.eciwise.study.flashcard.dto.CollectionResponse;
 import com.eciwise.study.flashcard.dto.FlashcardResponse;
+import com.eciwise.study.flashcard.dto.ReviewResponse;
+import com.eciwise.study.flashcard.dto.StudyCardResponse;
 import com.eciwise.study.flashcard.dto.UsageResponse;
 import com.eciwise.study.user.AppUser;
 import org.springframework.stereotype.Component;
@@ -50,6 +52,27 @@ public class FlashcardMapper {
                 usage.getFlashcard().getId(),
                 usage.getFlashcard().getTitle(),
                 usage.getUsedAt()
+        );
+    }
+
+    public ReviewResponse toResponse(FlashcardReview review) {
+        return new ReviewResponse(
+                review.getFlashcard().getId(),
+                review.getState(),
+                review.getRepetitions(),
+                review.getIntervalDays(),
+                review.getEaseFactor(),
+                review.getLapses(),
+                review.getDueAt(),
+                review.getLastReviewedAt()
+        );
+    }
+
+    public StudyCardResponse toStudyCard(Flashcard flashcard, FlashcardReview review) {
+        return new StudyCardResponse(
+                toResponse(flashcard),
+                review == null ? null : review.getState(),
+                review == null ? null : review.getDueAt()
         );
     }
 }
