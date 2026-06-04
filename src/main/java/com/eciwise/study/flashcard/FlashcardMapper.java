@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 public class FlashcardMapper {
 
     public CollectionResponse toResponse(FlashcardCollection collection) {
+        return toResponse(collection, false);
+    }
+
+    public CollectionResponse toResponse(FlashcardCollection collection, boolean favorite) {
         return new CollectionResponse(
                 collection.getId(),
                 collection.getName(),
@@ -20,7 +24,8 @@ public class FlashcardMapper {
                 toAuthorResponse(collection.getAuthor()),
                 collection.getFlashcards() == null ? 0 : collection.getFlashcards().size(),
                 collection.getCreatedAt(),
-                collection.getUpdatedAt()
+                collection.getUpdatedAt(),
+                favorite
         );
     }
 
