@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CollectionService {
@@ -18,13 +19,16 @@ public class CollectionService {
     static final String ROLE_ESTUDIANTE = "estudiante";
 
     private final FlashcardCollectionRepository collectionRepository;
+    private final CollectionFavoriteRepository favoriteRepository;
     private final CurrentUserService currentUserService;
     private final FlashcardMapper mapper;
 
     public CollectionService(FlashcardCollectionRepository collectionRepository,
+                             CollectionFavoriteRepository favoriteRepository,
                              CurrentUserService currentUserService,
                              FlashcardMapper mapper) {
         this.collectionRepository = collectionRepository;
+        this.favoriteRepository = favoriteRepository;
         this.currentUserService = currentUserService;
         this.mapper = mapper;
     }
@@ -40,7 +44,8 @@ public class CollectionService {
                 .visibility(request.visibility())
                 .build();
 
-        return mapper.toResponse(collectionRepository.save(collection));
+        // Una coleccion recien creada no es favorita todavia.
+        return mapper.toResponse(collectionRepository.save(collection), false);
     }
 
     @Transactional
@@ -49,7 +54,10 @@ public class CollectionService {
         List<FlashcardCollection> collections = isAdmin(user)
                 ? collectionRepository.findAll()
                 : collectionRepository.findVisibleTo(user.getId());
-        return collections.stream().map(mapper::toResponse).toList();
+        Set<Long> favoriteIds = favoriteRepository.findCollectionIdsByUserId(user.getId());
+        return collections.stream()
+                .map(c -> mapper.toResponse(c, favoriteIds.contains(c.getId())))
+                .toList();
     }
 
     @Transactional
@@ -57,7 +65,8 @@ public class CollectionService {
         AppUser user = currentUserService.getOrCreate();
         FlashcardCollection collection = findByIdOrThrow(id);
         ensureCanRead(collection, user);
-        return mapper.toResponse(collection);
+        boolean favorite = favoriteRepository.existsByUser_IdAndCollection_Id(user.getId(), id);
+        return mapper.toResponse(collection, favorite);
     }
 
     @Transactional
@@ -69,7 +78,27 @@ public class CollectionService {
 
         collection.setName(request.name());
         collection.setVisibility(request.visibility());
-        return mapper.toResponse(collectionRepository.save(collection));
+        boolean favorite = favoriteRepository.existsByUser_IdAndCollection_Id(user.getId(), id);
+        return mapper.toResponse(collectionRepository.save(collection), favorite);
+    }
+
+    @Transactional
+    public CollectionResponse setFavorite(Long id, boolean favorite) {
+        AppUser user = currentUserService.getOrCreate();
+        FlashcardCollection collection = findByIdOrThrow(id);
+        // Cualquiera que pueda ver la coleccion puede fijarla (incluidas las publicas ajenas).
+        ensureCanRead(collection, user);
+        if (favorite) {
+            if (!favoriteRepository.existsByUser_IdAndCollection_Id(user.getId(), id)) {
+                favoriteRepository.save(CollectionFavorite.builder()
+                        .user(user)
+                        .collection(collection)
+                        .build());
+            }
+        } else {
+            favoriteRepository.deleteByUser_IdAndCollection_Id(user.getId(), id);
+        }
+        return mapper.toResponse(collection, favorite);
     }
 
     @Transactional
