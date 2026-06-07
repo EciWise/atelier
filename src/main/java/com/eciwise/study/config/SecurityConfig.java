@@ -36,7 +36,8 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/collections/**", "/api/flashcards/**", "/api/usage/**", "/api/reviews/**")
+                        .requestMatchers("/api/collections/**", "/api/flashcards/**", "/api/usage/**", "/api/reviews/**",
+                                "/api/subjects/**", "/api/questions/**", "/api/question-collections/**", "/api/quiz/**")
                             .hasAnyAuthority("estudiante", "tutor", "admin")
                         .anyRequest().authenticated()
                 )
