@@ -2,6 +2,7 @@ package com.eciwise.study.flashcard;
 
 import com.eciwise.study.flashcard.dto.CollectionRequest;
 import com.eciwise.study.flashcard.dto.CollectionResponse;
+import com.eciwise.study.flashcard.dto.FavoriteRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,6 +46,11 @@ public class CollectionController {
     @PutMapping("/{id}")
     public CollectionResponse update(@PathVariable Long id, @Valid @RequestBody CollectionRequest request) {
         return collectionService.update(id, request);
+    }
+
+    @PutMapping("/{id}/favorite")
+    public CollectionResponse setFavorite(@PathVariable Long id, @RequestBody FavoriteRequest request) {
+        return collectionService.setFavorite(id, request.favorite());
     }
 
     @DeleteMapping("/{id}")

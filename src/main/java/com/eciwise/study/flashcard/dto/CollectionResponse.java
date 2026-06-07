@@ -11,6 +11,7 @@ public record CollectionResponse(
         AuthorResponse author,
         int flashcardCount,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        boolean favorite
 ) {
 }

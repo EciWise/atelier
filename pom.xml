@@ -19,8 +19,6 @@
 
     <properties>
         <java.version>21</java.version>
-        <!-- La version gestionada por Spring Boot (1.18.34) no soporta JDKs muy recientes.
-             Se fija una version mas nueva para compatibilidad del entorno de build. -->
         <lombok.version>1.18.42</lombok.version>
     </properties>
 
